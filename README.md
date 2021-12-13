@@ -43,9 +43,9 @@ We'll start by setting up Heroku. If you don't have a free Heroku account, [crea
 
 In the [Heroku Apps Dashboard](https://dashboard.heroku.com/apps), click New -> Create new app
 
-![Click create](http://url/to/img.png)
+![Click create](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/create-new-heroku-app.png)
 
-![Enter app name]()
+![Enter app name](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/enter-heroku-app-name.png)
 
 
 
