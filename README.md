@@ -121,7 +121,7 @@ If you see a white page, which says "401 Authorization Required", then that mean
 ![401 Authorization Required](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/401-authorization-required.png)
 
 
-This is what the general public sees, as we definitely want this to be secured. But we want to see the desktop. This is where the ACCESS_TOKEN we added to the Config Vars comes into play. To access the site, we'll install the [ModHeader Chrome Extension](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related?hl=en). Once installed, click the extensions icon at the top right of the browser, and then click the Modheader extension icon:
+This is what the general public sees. We definitely want this to be secured and for all outsiders to be confronted with a 401 security wall. But _you and I_ want to see the desktop, and this is where the ACCESS_TOKEN we added to the Config Vars comes into play. To access the site, we'll install the [ModHeader Chrome Extension](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related?hl=en). Once installed, click the extensions icon at the top right of the browser, and then click the Modheader extension icon to bring up the rule profiles pane:
 
 ![Click Extensions then Modheader](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/click-extensions-then-modheader.png)
 
@@ -131,4 +131,21 @@ Use the + symbol to add a filter, which restricts the modification to only _your
 
 ![Modheader Heroku Rule](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/modheader-heroku-rule.png)
 
+Note that we're only including the ACCESS_TOKEN, not the VNC_SECRET_PW. Again, don't get too excited about seeing my access token. It's just for demo purposes and has been changed in production.
 
+Also, note that there are two filters, one for HTTPS and one for WSS. Since noVNC uses websockets, we must make sure that traffic can get through as well.
+
+Once created, click away from the pane to close it. Go ahead and refresh the page, and now you should see the noVNC client:
+
+![noVNC Connect](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/novnc-connect-client.png)
+
+Click "Connect", and you should be prompted for the VNC_SECRET_PASSWORD. You can retrieve it by copying it from the Heroku Config Vars and pasting it, like below:
+
+![Enter VNC Password](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/enter-vnc-password.png)
+
+Click "Send Credentials" and now you should be logged into the Debian 11 desktop. 
+
+
+### Step 5 - Opening a Terminal Shell
+
+Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. We can 
