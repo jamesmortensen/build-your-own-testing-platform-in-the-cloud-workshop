@@ -68,6 +68,10 @@ Let's go back to the Heroku Dashboard and click "Settings", then scroll down to 
 
 ![GUIDs as Heroku Config Vars](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-config-vars.png)
 
+You've hopefully noticed that I just took a screenshot of two tokens. Since they're now public to the world, they're no longer secure. However, don't get too excited about seeing them. As soon as I complete writing this content, I'll delete the app. 
+
+In your case, don't share these tokens. They're the only thing sitting between you and an army of bad people who would want to do bad things with your cloud server, like use it for free while making you pay the bill, for instance.
+
 
 ### Step 3 - Deploy the Container Image
 
