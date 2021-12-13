@@ -106,7 +106,7 @@ $ docker push registry.heroku.com/YOUR_APP/web:latest
 Again, this will take some time.  Once it's done, we'll deploy the container image. Be sure to replace YOUR_APP with the name of your app:
 
 ```
-$ heroku container:web -a YOUR_APP
+$ heroku container:release web -a YOUR_APP
 ```
 
 
