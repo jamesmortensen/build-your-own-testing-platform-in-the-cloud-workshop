@@ -35,7 +35,7 @@ We'll learn how to deploy the Docker container image to Heroku, and we'll config
 We'll then configure WebdriverIO to run some tests, but using the WebDriver and browser on the Heroku cloud instead of on our local machine.  This means we're free to do other things on our system, without it using as many resources.  We'll also be able to use this in CI servers when we need to run tests on a WebKit-based browser and don't have a cloud-based macOS platform to run on.
 
 
-## Section 1 - The Heroku Setup
+## Section 1 - Setup our Cloud Desktop on Heroku
 
 We'll start by setting up Heroku. If you don't have a free Heroku account, [create one now](https://signup.heroku.com/login).  To setup Heroku, we'll create an app, and then we'll download and install the Heroku CLI tool. We'll then configure an ACCESS_TOKEN and VNC_SECRET_PASSWORD Heroku Config Variables in the settings.  Lastly, we'll use the Docker CLI to pull the jamesmortensen/webkitwebdriver-epiphany-cloud container image, and then we'll push it to the Heroku Registry and deploy it.
 
@@ -148,9 +148,11 @@ Click "Send Credentials" and now you should be logged into the Debian 11 desktop
 ![Debian 11 Cloud Desktop](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/debian-11-cloud-desktop.png)
 
 
-### Step 5 - Learning about the Cloud Desktop
+## Section 2 - Learning about the Cloud Desktop
 
 Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. But for our purposes, we'll use it to offload automated testing from our local machine to this desktop.  We'll open MiniBrowser.  
+
+### Step 1 - Launch MiniBrowser
 
 Since MiniBrowser doesn't have a desktop icon, we'll need to launch it from the terminal. MiniBrowser is located in the `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0` folder and is not in our system path, but there's an alias in the `.bashrc` script to make it easier to launch. 
 
@@ -166,6 +168,8 @@ NOTE: You can launch MiniBrowser with the absolute path, as shown in the screens
 
 In the above screenshot, you can probably tell that the host operating system is Windows 10, and inside the browser tab, we're seeing a Debian 11 Desktop with another browser running on that desktop. Perhaps your system is macOS, or even Linux. As long as you have installed ModHeader and the browser you're using is a Chromium based browser, such as Google Chrome, Microsoft Edge, Brave, Yandex, Epic, etc, then you'll be able to connect to your cloud desktop.
 
+### Step 2 - Fun Check #1, View OS and Browser Type and Version
+
 To prove that the browser running inside the Debian desktop is indeed Linux and not running on your host operating system, there are a couple fun checks we can do.  First, in the address bar, navigate to https://whatismybrowser.com. Be sure to type this in the MiniBrowser's address bar, not in your host browser's address bar.
 
 ![Top of whatismybrowser.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismybrowser-top-of-page.png)
@@ -174,9 +178,13 @@ Now, scroll down towards the bottom until you get to the userAgent string. Here 
 
 ![Top of whatismybrowser.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismybrowser-useragent.png)
 
+### Step 3 - Fun Check #2, View the Public IP Address of the Cloud Desktop
+
 Another fun thing to do is to go to https://whatismyip.com. Again, do this in MiniBrowser, not on your host's browser.  In my case, I see that the server is running somewhere in Dublin, Ireland, not from my network in Chennai, India.
 
 ![whatismyip.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismyip.png)
+
+### Step 4 - Fun Check #3, View the Status of the WebKitWebDriver
 
 We can also navigate to http://localhost:4444/status and see that there is a WebDriver listening on port 4444, sitting idle yet ready for incoming connections from a test framework. This particular WebDriver is called WebKitWebDriver, similar to how Chrome has ChromeDriver and Firefox has GeckoDriver.
 
@@ -197,6 +205,8 @@ Keep in mind, we want this to be secure. The only reason we're seeing the status
 ![401 Authorization Required for WebKitWebDriver Status](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/401-authorization-required-for-status.png)
 
 Many extensions only run when not incognito mode. If you don't see the 401 Authorization Required message and instead see the WebDriver status message, then you may have configured the ModHeader extension to run on incognito browsers as well.  If this is the case, open up another browser, if you have one, and try there.  You can also disable the ModHeader extension and reload the page, if needed. This demonstrates that the services running in the cloud desktop are secure.
+
+### Step 5 - Fun Check #4, The House of Mirrors
 
 Another fun thing we can do is create our very own house of mirrors. Have you ever noticed what happens when two mirrors in a room are set face to face to each other? When you look in one mirror, you see an infinite repetition of the room out to a point into infinity. 
 
@@ -222,6 +232,8 @@ While there isn't much usefulness out of doing this, it should make it clear tha
 We did need the VNC password to login, but did you notice that you didn't need to install ModHeader in MiniBrowser and configure it to send the ACCESS_TOKEN as an authentication header? What happened? Why did this work?
 
 You may need to close the browser and reopen it to break out of the infinitely displayed mirrored desktops.
+
+### Cloud Desktop Usefulness
 
 These are just a few things we can do with this cloud desktop, aside from running the tests, which we'll get into next. Before we do, take a moment to explore the desktop further. You can right click on the desktop to pull up the menu, or you can run various Linux commands in the bash terminal. Take a moment to poke around and explore.
 
