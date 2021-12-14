@@ -145,7 +145,58 @@ Click "Connect", and you should be prompted for the VNC_SECRET_PASSWORD. You can
 
 Click "Send Credentials" and now you should be logged into the Debian 11 desktop. 
 
+![Debian 11 Cloud Desktop](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/debian-11-cloud-desktop.png)
 
-### Step 5 - Opening a Terminal Shell
 
-Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. We can 
+### Step 5 - Learning about the Cloud Desktop
+
+Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. But for our purposes, we'll use it to offload automated testing from our local machine to this desktop.  We'll open MiniBrowser.  Since MiniBrowser doesn't have a desktop icon, we'll need to launch it from the terminal. MiniBrowser is located in the `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0` folder and is not in our system path, but there's an alias in the `.bashrc` script to make it easier to launch. 
+
+Right click on the desktop, mouseover Applications -> Shells, and then click "Bash".
+
+![Applications, then Shells, then click Bash](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/application-shells-bash.png)
+
+This will open a bash terminal. In the terminal, type `MiniBrowser` and press enter.  You should now see the browser launch on the Debian desktop:
+
+![WebkitGTK MiniBrowser on Microsoft Edge in Windows 10](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/webkitgtk-from-windows-10.png)
+
+In the above screenshot, you can probably tell that the host operating system is Windows 10, and inside the browser tab, we're seeing a Debian 11 Desktop with another browser running on that desktop. Perhaps your system is macOS, or even Linux. As long as you have installed ModHeader and the browser you're using is a Chromium based browser, such as Google Chrome, Microsoft Edge, Brave, Yandex, Epic, etc, then you'll be able to connect to your cloud desktop.
+
+To prove that the browser running inside the Debian desktop is indeed Linux and not running on your host operating system, there are a couple fun checks we can do.  First, in the address bar, navigate to https://whatismybrowser.com. Be sure to type this in the MiniBrowser's address bar, not in your host browser's address bar.
+
+![Top of whatismybrowser.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismybrowser-top-of-page.png)
+
+Now, scroll down towards the bottom until you get to the userAgent string. Here we can verify the OS is Linux, the architecture is x86_64, and the browser version is like Safari 15.0, just one mini-version behind Safari latest at 15.1.
+
+![Top of whatismybrowser.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismybrowser-useragent.png)
+
+Another fun thing to do is to go to https://whatismyip.com. Again, do this in MiniBrowser, not on your host's browser.  In my case, I see that the server is running somewhere in Dublin, Ireland, not from my network in Chennai, India.
+
+![whatismyip.com](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/whatismyip.png)
+
+We can also navigate to http://localhost:4444/status and see that there is a WebDriver listening on port 4444, sitting idle yet ready for incoming connections from a test framework. This particular WebDriver is called WebKitWebDriver, similar to how Chrome has ChromeDriver and Firefox has GeckoDriver.
+
+NOTE: If you find the page hanging, check to make sure the scheme is http, not https!
+
+![WebKitWebDriver Status Idle Yet Ready](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/webkitwebdriver-status-idle-yet-ready.png)
+
+While port 4444 isn't public, the container runs an NGINX reverse proxy that listens for traffic requests to /session and /status and forwards them to the WebKitWebDriver listening on localhost:4444. Other traffic is forwarded to the noVNC server, which listens on localhost:7900. If we were running a Selenium Server, we would forward traffic from /wd/hub to localhost:4444. However, since WebKitWebDriver is capable of accepting remote, incoming connections, we don't need a Selenium Server.
+
+To understand the reverse proxy a little bit more, let's try and access the WebDriver from our host browser. In your host OS browser (not the one in the cloud), open a new tab, and navigate to https://YOUR_APP.herokuapp.com/status. Again, replace YOUR_APP with the name of your Heroku app.
+
+In Google Chrome, I see the same message we see when navigating to localhost:4444/status from within the cloud desktop.
+
+![WebKitWebDriver From Host](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/webkitwebdriver-from-host.png)
+
+Keep in mind, we want this to be secure. The only reason we're seeing the status is because we already configured ModHeader to send the access token with all of our requests. To verify it's secure, open an incognito browser on the host, and try to access https://YOUR_APP.herokuapp.com/status.
+
+![401 Authorization Required for WebKitWebDriver Status](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/401-authorization-required-for-status.png)
+
+Many extensions only run when not incognito mode. If you don't see the 401 Authorization Required message and instead see the WebDriver status message, then you may have configured the ModHeader extension to run on incognito browsers as well.  If this is the case, open up another browser, if you have one, and try there.  You can also disable the ModHeader extension and reload the page, if needed. This demonstrates that the services running in the cloud desktop are secure.
+
+These are just a few things we can do with this, aside from running the tests, which we'll get into next. Before we do, take a moment to explore the desktop. You can right click on the desktop to pull up the menu, or you can run various linux commands in the bash terminal. Take a moment to poke around and explore.
+
+What kinds of other things were you able to do with this cloud desktop?
+
+
+
