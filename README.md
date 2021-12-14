@@ -233,11 +233,13 @@ We did need the VNC password to login, but did you notice that you didn't need t
 
 You may need to close the browser and reopen it to break out of the infinitely displayed mirrored desktops.
 
-### Cloud Desktop Usefulness
+### Step 6 - Cloud Desktop Usefulness
 
 These are just a few things we can do with this cloud desktop, aside from running the tests, which we'll get into next. Before we do, take a moment to explore the desktop further. You can right click on the desktop to pull up the menu, or you can run various Linux commands in the bash terminal. Take a moment to poke around and explore.
 
 What kinds of other things were you able to do with this cloud desktop?
 
 
+## Section 3 - Configuring WebdriverIO to Run Tests in the Heroku Cloud Desktop
 
+Now that we have everything setup on the remote side of things, we'll configure a sample project.

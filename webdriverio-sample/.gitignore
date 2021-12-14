@@ -1,0 +1,7 @@
+node_modules
+pnpm-lock.yaml
+_results_
+allure-results
+allure-report
+.DS_Store
+.env
