@@ -150,7 +150,9 @@ Click "Send Credentials" and now you should be logged into the Debian 11 desktop
 
 ### Step 5 - Learning about the Cloud Desktop
 
-Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. But for our purposes, we'll use it to offload automated testing from our local machine to this desktop.  We'll open MiniBrowser.  Since MiniBrowser doesn't have a desktop icon, we'll need to launch it from the terminal. MiniBrowser is located in the `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0` folder and is not in our system path, but there's an alias in the `.bashrc` script to make it easier to launch. 
+Now that we have our desktop deployed to the cloud, there are many different things that we could do with this. But for our purposes, we'll use it to offload automated testing from our local machine to this desktop.  We'll open MiniBrowser.  
+
+Since MiniBrowser doesn't have a desktop icon, we'll need to launch it from the terminal. MiniBrowser is located in the `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0` folder and is not in our system path, but there's an alias in the `.bashrc` script to make it easier to launch. 
 
 Right click on the desktop, mouseover Applications -> Shells, and then click "Bash".
 
