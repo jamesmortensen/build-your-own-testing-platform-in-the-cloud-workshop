@@ -158,7 +158,9 @@ Right click on the desktop, mouseover Applications -> Shells, and then click "Ba
 
 ![Applications, then Shells, then click Bash](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/application-shells-bash.png)
 
-This will open a bash terminal. In the terminal, type `MiniBrowser` and press enter.  You should now see the browser launch on the Debian desktop:
+This will open a bash terminal. In the terminal, type `MiniBrowser` and press enter.  You should now see the browser launch on the Debian desktop.
+
+NOTE: You can launch MiniBrowser with the absolute path, as shown in the screenshot, if you're on a system that doesn't alias it, but on this container, you can simply type `MiniBrowser` without the path.
 
 ![WebkitGTK MiniBrowser on Microsoft Edge in Windows 10](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/webkitgtk-from-windows-10.png)
 
