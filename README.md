@@ -198,7 +198,32 @@ Keep in mind, we want this to be secure. The only reason we're seeing the status
 
 Many extensions only run when not incognito mode. If you don't see the 401 Authorization Required message and instead see the WebDriver status message, then you may have configured the ModHeader extension to run on incognito browsers as well.  If this is the case, open up another browser, if you have one, and try there.  You can also disable the ModHeader extension and reload the page, if needed. This demonstrates that the services running in the cloud desktop are secure.
 
-These are just a few things we can do with this, aside from running the tests, which we'll get into next. Before we do, take a moment to explore the desktop. You can right click on the desktop to pull up the menu, or you can run various linux commands in the bash terminal. Take a moment to poke around and explore.
+Another fun thing we can do is create our very own house of mirrors. Have you ever noticed what happens when two mirrors in a room are set face to face to each other? When you look in one mirror, you see an infinite repetition of the room out to a point into infinity. 
+
+Let's login to our Heroku account from within the cloud desktop's MiniBrowser by going to https://heroku.com. Once logged in, navigate to your app's Config Vars, and copy your VNC_SECRET_PW to the clipboard. Since this is on Linux, you'll need to use Ctrl-C, like on Windows, not like on macOS. 
+
+After copying the password, navigate to http://localhost:7900 in the MiniBrowser. You'll see the noVNC window:
+
+![noVNC in the container](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/novnc-in-container.png)
+
+Let's click "Connect", and enter the password you copied from the Heroku Config Vars. Remember, regardless of whether or not your computer is Windows or macOS, you're interacting with a Linux desktop, so you'll need to right click in the textbox and click "paste".
+
+Once pasted, click "send credentials", and get ready for the house of mirrors. You should now see this:
+
+![House of Mirrors in MiniBrowser](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/house-of-mirrors-in-minibrowser.png)
+
+Try clicking on something inside the browser to change the focus. For instance, this is what you'll see if you click on the bash terminal:
+
+![House of Mirrors focusing on Terminal](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/house-of-mirrors-focusing-on-terminal.png)
+
+
+While there isn't much usefulness out of doing this, it should make it clear that VNC is just a portal into another desktop. What it does confirm is that the noVNC service is indeed listening on localhost:7900.
+
+We did need the VNC password to login, but did you notice that you didn't need to install ModHeader in MiniBrowser and configure it to send the ACCESS_TOKEN as an authentication header? What happened? Why did this work?
+
+You may need to close the browser and reopen it to break out of the infinitely displayed mirrored desktops.
+
+These are just a few things we can do with this cloud desktop, aside from running the tests, which we'll get into next. Before we do, take a moment to explore the desktop further. You can right click on the desktop to pull up the menu, or you can run various Linux commands in the bash terminal. Take a moment to poke around and explore.
 
 What kinds of other things were you able to do with this cloud desktop?
 
