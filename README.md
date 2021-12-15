@@ -6,7 +6,7 @@ In this workshop, we'll deploy a Docker container image to Heroku, which we'll u
 
 ### Tools We'll Need
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (with HyperVT/WSL enabled, if on Windows).
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (with HyperV or WSL2 enabled, if on Windows 10+. See [Docker's Windows Installation Guide](https://docs.docker.com/desktop/windows/install/)).
 - Node.js v14 - I recommend installing [Node Version Manager](https://github.com/nvm-sh/nvm) and then installing and using Node v14.
 - Signup for [a free Heroku account](https://signup.heroku.com/login)
 - [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
