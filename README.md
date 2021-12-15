@@ -242,4 +242,281 @@ What kinds of other things were you able to do with this cloud desktop?
 
 ## Section 3 - Configuring WebdriverIO to Run Tests in the Heroku Cloud Desktop
 
-Now that we have everything setup on the remote side of things, we'll configure a sample project.
+Now that we have everything setup on the remote side of things, we'll clone the repository which contains a [webdriverio-sample](https://github.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/tree/master/webdriverio-sample) project, which has a wdio configuration file which runs the sample e2e tests on the Heroku Cloud Desktop.
+
+### Step 1 - Clone the Repository and Install Modules
+
+Let's clone the repository, and change the working directory to the folder containing the sample project. Make sure you do this in a new folder that isn't already part of another git repo. For instance, many people keep their git projects in a folder called git. Make sure your primary working directory is that folder and not some other project you're working on.
+
+Once your PWD is correct, clone the repository and change directories:
+
+```
+$ git clone https://github.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop.git
+```
+
+```
+$ cd webdriverio-sample
+```
+
+We'll need to install the node modules.
+
+```
+$ npm i
+```
+
+### Step 2 - Examine Project Configuration
+
+If you've worked with WebdriverIO, you should recognize the structure right away. There's a wdio.conf.js configuration file, a test folder containing specs (the tests), as well as page objects (which wrap the API that communicates with the WebDriver/browsers). There's also node_modules, package.json, and package-lock.json, as well as a utils folder, which contains a logging wrapper.
+
+You may have also noticed another file, `wdio.minibrowser-heroku.conf.js`. This is a derived configuration file, which gets most of the configuration from its parent config file, `wdio.conf.js`, and then only overrides what is explicitly specified. It's conceptually similar to inheritance in Java or any other object-oriented programming language.
+
+`wdio.minibrowser-heroku.conf.js` is configured to communicate with a cloud container. We'll take a moment to go over what's different about this from other configuration files, and then we'll configure some environment variables that point it to YOUR_APP.herokuapp.com and which also includes the ACCESS_TOKEN needed in order to get past the security.
+
+Perhaps the first thing you noticed in this configuration file is that there are extra options that are normally just set as implicit defaults:
+
+```javascript
+    port: 443,
+    protocol: 'https',
+    hostname: process.env.CLOUD_CONTAINER_APP_URL,
+    headers: {
+        'authorization': 'Bearer ' + process.env.CLOUD_CONTAINER_ACCESS_TOKEN
+    },
+    strictSSL: true,
+```
+
+When you normally run tests locally, you most likely don't set the port, protocol, and hostname. By default, the port is 4444 and the hostname is localhost. But in our case, we need to connect to our remote server on Heroku's infrastructure, so we'll set the hostname to point to our app and we'll set the port as 443. 
+
+Why 443? It's the default port for HTTPS connections. When you browse any website, you've probably noticed you don't need to specify a port number. Every site we visit on the Internet with HTTPS uses port 443 and any site that still lives in the past using unsecured HTTP uses port 80 by default. These ports don't need to be specified because they're implicit. But in order for our test framework to connect to our remote WebDriver, we need to specify the port.
+
+The scheme (also known as the protocol), by default, is HTTP. But in our case, communicating with a server on the public Internet requires us to use HTTPS, so we set the protocol to 'https'. strictSSL tells the system we're only using SSL and no non-secure communications.
+
+You also see that there is a headers option where we again specify the authorization header with the Bearer ACCESS_TOKEN, similar to how we did in ModHeader to connect the browser to the server.
+
+Notice how the hostname and header use environment variables. The values aren't hard-coded. This is because we want to keep the ACCESS_TOKEN secure. If we commit it to GitHub, it's no longer a secret and is subject to being exposed if someone ever were to hack the source code. Also, this project would not be reusable by anyone wanting to run on their own infrastructure.
+
+To plug these values in at runtime, we'll create an `.env` file to store the values for these variables. This file has already been added to `.gitignore` so these secrets don't end up exposed in GitHub when committing changes to tests or other files.
+
+But before we configure the environment variables, we'll look at a couple more things unique to this configuration file. First, we'll look at the capabilities, and then we'll examine the WebdriverIO onPrepare hook.
+
+It's safe to assume that most automation testers do a majority of their testing on Google Chrome. So the capabilities are likely set to use that browser. In our case, we're testing against a WebKit based browser called MiniBrowser, and below you'll see the configuration that let's the testing framework know what kind of browser it needs to communicate with:
+
+```javascript
+    capabilities: [{
+        maxInstances: 1,
+        browserName: 'MiniBrowser',
+        browserVersion: '2.34.1',
+        'webkitgtk:browserOptions': {
+            args: [
+                '--automation'
+            ],
+            binary: `/usr/lib/${ARCH}-linux-gnu/webkit2gtk-4.0/MiniBrowser`
+        }
+    }],
+```
+
+Unlike Chrome, Firefox, Safari, and other browsers, the testing framework doesn't know the default binary location for MiniBrowser, so in the 'webkitgtk:browserOptions' we specify the location of that binary in the cloud. If you remember from earlier, it's at `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0/MiniBrowser`, and this information is passed to the WebKitWebDriver running on our server. The $ARCH variable is there in case we run the server on a different architectural platform, such as aarch64 (or ARM64) or armhf (like a Raspberry Pi)! By default, we assume x86_64.
+
+The `--automation` flag is also required for MiniBrowser to allow a WebDriver or Selenium Server to automatically control it, so this argument gets passed to the binary at runtime.
+
+Aside from capabilities, you'll see that a WebdriverIO onPrepare hook is implmenented.  WebdriverIO provides us with a series of different hooks we can tie into to run certain code at different points in the testing process.  In the `wdio.conf.js` file, we can find some documentation for the onPrepare` hook.
+
+```javascript
+    /**
+     * Gets executed once before all workers get launched.
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     */
+    // onPrepare: function (config, capabilities) {
+    // },
+```
+
+It gets called by WebdriverIO one time, before all of the workers get launched to run the tests. WebdriverIO also passes the configuration object and capabilities to the onPrepare hook, and we can use that information to do some setup before the tests run. In fact, the tests won't start running until this function gets a return value. By default, it's unimplemented, but we've implemented it in our configuration file in order to do some health checks on the remote server to make sure it's ready to start receiving information from the WebdriverIO testing framework.
+
+Remember how cloud container platforms, like Heroku and Google Cloud Run work. When there is no traffic, they shut down and remain idle. They don't consume any resources and can be either free of cost or very low cost. Thus, when we make our first network request to YOUR_APP.herokuapp.com after some time, it may take the server a moment to start up all of the resources: The WebKitWebDriver, the VNC server, the noVNC server, the desktop, and other resources. If WebdriverIO starts sending traffic right away, the server may respond with 502 Gateway Errors or other type of server errors.
+
+So our onPrepare hook makes a series of requests to the WebKitWebDriver to check the status. If it gets back a 4xx or 5xx response status code, it waits 4 seconds and tries again. It repeats the health check up to 5 times, and if it doesn't get a 200 OK response code, the onPrepare hook terminates the WebdriverIO test run.
+
+If the server returns 200 OK, then the onPrepare hook instructs WebdriverIO that it's okay to start running the tests.
+
+Take a moment to look at the source code for the onPrepare hook and see if you can understand the logic:
+
+```javascript
+    /*
+     * In the onPrepare hook, we instruct WebdriverIO to wait for the cloud service health check
+     * to return a 200 OK status code. The health check will recheck the server once every
+     * 4 seconds (retryTimeout) and make at least 5 attempts (maxAttempts) before terminating 
+     * the wdio runner.
+     */
+    onPrepare(config, capabilities) {
+        const opts = {
+            retryTimeout: 4000,
+            maxAttempts: 5
+        }
+        const https = require('https');
+        const wdioLogger = require('@wdio/logger').default;
+        const logger = wdioLogger('wdio-cloud-container-service');
+        var attempts = 0;
+        logger.warn('Warming up Cloud Container host at: ' + config.hostname + '...');
+        const webdriverPath = config.path === undefined ? '' : config.path;
+        return new Promise((resolve, reject) => {
+            const healthCheckInterval = setInterval(() => {
+                console.log(`${config.protocol}://${config.hostname}:${config.port}${webdriverPath}/status`);
+                https.get(`${config.protocol}://${config.hostname}:${config.port}${webdriverPath}/status`, {
+                    headers: {
+                        'authorization': 'Bearer ' + process.env.CLOUD_CONTAINER_ACCESS_TOKEN
+                    }
+                }, res => {
+                    if (++attempts > opts.maxAttempts) {
+                        logger.error('Problem launching Cloud Container service. Status: ' + res.statusCode);
+                        clearInterval(healthCheckInterval);
+                        reject(new Error('Cloud Container Service failed'));
+                        return;
+                    }
+                    let data = [];
+                    //logger.warn('Status Code:', res.statusCode);
+
+                    res.on('data', chunk => {
+                        data.push(chunk);
+                    });
+
+                    res.on('end', () => {
+                        //logger.warn('Response ended: ');
+                        if (res.statusCode >= 200 && res.statusCode < 400) {
+                            clearInterval(healthCheckInterval);
+                            resolve();
+                        } else {
+                            logger.warn('Waiting for Cloud Container service to launch... Status code: ' + res.statusCode);
+                        }
+                    });
+                }).on('error', err => {
+                    console.log('Error: ', err.message);
+                    reject(err.message);
+                });
+            }, opts.retryTimeout);
+        }).catch((err) => {
+            logger.error('SEVERE: Cloud Container service failed to launch. Exiting...');
+            process.exit(1);
+        });
+    }
+```
+
+It's a pretty big method, and could definitely use some refactoring to make it easier to understand. Before refactoring it, I would want to write some tests around it so that I don't have to manually check it against a real server. One approach could be to mock https.get so that it simply returns a response code instead of making an actual network request to a real server. A better approach would be to split up each logical block into smaller functions and then simply mock the function that calls https.get.
+
+If you've ever wondered if you could write unit or functional tests for code in your test framework, this is a perfect example of code that could, and should be tested, in order to ensure we can later modify it without breaking anything.
+
+However, since we don't have time for that in this workshop, we'll save that for another time.
+
+
+### Step 3 - Configure the Environment
+
+Let's move on to configuring the environment variables so we can run some tests. In the webdriverio-samples folder, you'll find a file called `sample.env`. Let's copy it to `.env`
+
+```
+$ cp sample.env .env
+```
+
+Now, in VSCode, let's open the file and edit the contents. You should see this in the .env file:
+
+```
+CLOUD_CONTAINER_APP_URL=YOUR_APP.herokuapp.com
+CLOUD_CONTAINER_ACCESS_TOKEN=<<ACCESS_TOKEN FROM HEROKU CONFIG VARS>>
+```
+
+Replace YOUR_APP with the subdomain of your Heroku app. Then go back to the Heroku Config Vars in https://heroku.com, where we entered the VNC_SECRET_PW and ACCESS_TOKEN, and copy the ACCESS_TOKEN to the file, replacing `<<ACCESS_TOKEN FROM HEROKU CONFIG VARS>>` with the ACCESS_TOKEN. Save the file.
+
+![Environment Variables](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/env-variables.png)
+
+You can, and should confirm, that the `.env` file is listed in the project's `.gitignore` file.
+
+```
+node_modules
+pnpm-lock.yaml
+_results_
+allure-results
+allure-report
+.DS_Store
+.env
+```
+
+Again, we don't want keys, passwords, or other sensitive information, like secrets, committed to the GitHub repository.
+
+### Step 4 - Run the Tests
+
+Before get to the part that everyone's been waiting for, the moment of truth, which is running the tests on our Heroku cloud desktop, let's first verify that we're able to run the tests. I've included about 2 minutes worth of sample tests, which run against https://the-internet.herokuapp.com, a website built specifically for learning how to write tests.  To run the tests, we'll execute the following familiar command, for those of you who already use WebdriverIO:
+
+```
+$ npx wdio
+```
+
+You should see the tests running in your system's Google Chrome browser, since the default `wdio.conf.js` configuration file is configured to use the chromedriver service to run tests locally on Google Chrome. Once we're satisfied tests are running, we can terminate the test run by pressing CTRL-C in the terminal.
+
+If everything went smooth, that tells us all of our NPM modules are installed and that we're not missing anything critical for WebdriverIO to run tests. So now let's do the same thing, but with MiniBrowser on the Heroku Cloud Desktop:
+
+```
+$ npx wdio wdio.minibrowser-heroku.conf.js
+```
+
+The output should look similar to when running with the default configuration, with a notable difference. Remember the health check code we looked at, which runs when the onPrepare hook is called? You'll see the health check happening in the terminal. If it's been awhile since you last visited YOUR_APP.herokuapp.com, it may take the server some time to warm up, and you may see a few 401 or 5xx errors. But hopefully you'll also see the health check succeed and the tests begin to run.
+
+If you've been visiting the YOUR_APP.herokuapp.com more frequently, it may already be warmed up, and the system will immediately move to running tests.
+
+If your tests don't start running, there are a few possible things that might be going on that we can troubleshoot:
+
+1. Is the ACCESS_TOKEN configured in `.env`?
+2. Is the URL correct?
+3. Is YOUR_APP.herokuapp.com accessible in the browser, and when you visit YOUR_APP.herokuapp.com/status, does it show as READY?
+4. Are you using Node.js v14? The tests use @wdio/sync mode, so they are not compatible with later versions of Node.js, such as Node.js v16+
+
+If all of those things check out, then look through the logs and see if there's anything that jumps out as the problem. There could be something else going on. For instance, if some time has passed since when this workshop was created and when you're following these instructions, the version of MiniBrowser may have increased. In the cloud desktop bash terminal, run:
+
+```
+$ MiniBrowser --version
+```
+
+You should see `WebKitGTK 2.34.1`. If this doesn't match the browserVersion from the capabilities, then try updating it and rerun the tests. 
+
+This is just a few reasons why things might be giving you trouble, and the logs can be a helpful ally in trying to figure out exactly what is going wrong so you can fix it. If the logs look like gibberish, or like a foreign language to you, that's ok, just try googling the messages instead to learn more about what they mean.
+
+
+## Section 4 - Conclude by Configuring Your Tests to Run in the Heroku Cloud Desktop
+
+This last section is one that might be the most helpful for you. If you've followed along in this workshop, then by now, you should have Debian 11, WebKitWebDriver, and MiniBrowser setup running in your own Heroku free account. You should also have a sample WebdriverIO project running on your computer, which is configured to work with your very own Heroku Cloud Desktop.
+
+Assuming it's working properly, you're now armed with the knowledge and tools to try this yourself in your own test project. If you're using WebdriverIO already, then you'll just need to copy wdio.minibrowser-heroku.conf.js to your project's folder containing wdio.conf.js. You'll need to `npm i dotenv`, since it's used to read the environment variables from `.env`, and you'll need to copy that environment file to the project as well.
+
+If you're not using the wdio-video-reporter, you will need to remove this line:
+
+```
+const video = require('wdio-video-reporter');
+```
+
+The last thing you'll need to deal with is the wdio-eslinter-service. This service checks for missing imports before running tests and saves you a lot of lost time spent waiting for the system to break at runtime. If you don't have it installed, you can install it by following the [wdio-eslinter-service instructions](https://webdriver.io/docs/wdio-eslinter-service/). Otherwise, just remove eslinter from the services in the wdio.minibrowser-heroku.conf.js file, at least for now:
+
+```
+    services: [],
+```
+
+Since wdio.minibrowser-heroku.conf.js inherits from wdio.conf.js, it should already know where your tests are located. It will inherit the specs option, in other words, and whatever else you have in wdio.conf.js that isn't overridden in wdio.minibrowser-heroku.conf.js. 
+
+If you've made some significant changes to wdio.conf.js, you may need to deal with anything that didn't get inherited. You'll know when you try to run your tests if there's something else missing.
+
+If you're using another WebDriver-based testing framework, such as Selenium Java, Nightwatch.js, SeleniumJS, etc, then you may still be able to configure your tests to run on your Heroku Cloud Desktop. You'll just have to configure it to work with the MiniBrowser and to connect to the remote service. These other platforms all follow a common standard, so their documentation _should_ have instructions to help you get started. 
+
+If you _do_ figure it out, let me know, and we can update this content to help others who are working on platforms outside of WebdriverIO.
+
+
+## Conclusion
+
+This is an experimental platform. It's secure from outside abuse and runs on the Heroku free plan, but it's still experimental. Some tests may cause the system to exceed resources, which may cause some tests to fail due to socket errors, browser crashes, or driver crashes. 
+
+Conversely, you may also find that things work smoothly. You also might find that upgrading to a Heroku paid plan works much smoother than the free plan, or you may find that the free plan completely meets your needs.
+
+You may also find other uses for this setup. For example, you can also use it for manual testing, thanks to the noVNC server. 
+
+The best outcome we can hope for is that this saves you time and helps you be more productive when running your UI automated tests. If that's the case, then that's great. But if you walked away learning a few new things, and if some new ideas and possibilities are now swimming together in your brain, then that's great as well. 
+
+In this workshop, we created an application on Heroku's free plan, and we configured it with some environment variables to help keep it secure. We then used the Docker CLI to pull a Docker container image from Docker Hub and push it to the Heroku Artifact Registry. Afterwards, we deployed it to our Heroku app and explored the functionality.
+
+We then configured a WebdriverIO sample project to run tests on the cloud desktop, and then we explored doing this for our own tests. In the process, you may have also learned some new options available to you in WebdriverIO's configuration file, such as configuring non-mainstream browsers, such as MiniBrowser.
+
+I hope this has been useful for you.

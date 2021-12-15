@@ -115,8 +115,8 @@ config.override = {
                 });
             }, opts.retryTimeout);
         }).catch((err) => {
-            logger.error('SEVERE: Cloud Container service failed to launch. Exiting...')
-            process.exit(1)
+            logger.error('SEVERE: Cloud Container service failed to launch. Exiting...');
+            process.exit(1);
         });
     }
 };
