@@ -9,6 +9,7 @@ In this workshop, we'll deploy a Docker container image to Heroku, which we'll u
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (with HyperVT/WSL enabled, if on Windows).
 - Node.js v14 - I recommend installing [Node Version Manager](https://github.com/nvm-sh/nvm) and then installing and using Node v14.
 - Signup for [a free Heroku account](https://signup.heroku.com/login)
+- [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 - [ModHeader Chrome Extension](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related?hl=en)
 - A GitHub account with the git client installed.
 - [Git Bash for Windows](https://git-scm.com/downloads), if running Windows.
