@@ -13,7 +13,7 @@ In this workshop, we'll deploy a Docker container image to Heroku, which we'll u
 - [ModHeader Chrome Extension](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related?hl=en)
 - A GitHub account with the git client installed.
 - [Git Bash for Windows](https://git-scm.com/downloads), if running Windows.
-- [WebKitWebDriver Epiphany Cloud Docker Container Image](https://hub.docker.com/repository/docker/jamesmortensen/webkitwebdriver-epiphany-cloud) - Use `git pull jamesmortensen/webkitwebdriver-epiphany-cloud:latest` to pull the container image.
+- [WebKitWebDriver Epiphany Cloud Docker Container Image](https://hub.docker.com/repository/docker/jamesmortensen/webkitwebdriver-epiphany-cloud) - Use `docker pull jamesmortensen/webkitwebdriver-epiphany-cloud:latest` to pull the container image.
 
 ### The Problem(s)
 
