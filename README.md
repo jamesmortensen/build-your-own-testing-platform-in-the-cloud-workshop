@@ -137,7 +137,7 @@ Now that you've forked it, let's go to the "Actions" tab and click on the "Herok
 
 You'll see there's 0 workflow runs, and that's because you haven't run any actions in this repo yet. We're about to change that. Click the "Run workflow" dropdown, located to the right of the blue notification, and this will pop up a form we'll need to fill out:
 
-![Heroku Deploy Action Workflow Dispatch Form](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deploy-action-workflow-dispatch-form.png)
+<img src="https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deploy-action-workflow-dispatch-form.png" alt="Heroku Deploy Action Workflow Dispatch Form" width="450" />
 
 Enter the following values in the form: 
 - Email address you used to signup with Heroku
@@ -169,7 +169,7 @@ You'll see the action runner pulling the docker container image from Docker Hub:
 
 At the end of the workflow run, you should see something like this in the logs:
 
-![GitHub Actions runner pulling Docker container image](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deployment-action-completed.png)
+![GitHub Actions Heroku deployment completed](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deployment-action-completed.png)
 
 
 ### Step 4 - Verify noVNC Access
