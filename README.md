@@ -6,14 +6,15 @@ In this workshop, we'll deploy a Docker container image to Heroku, which we'll u
 
 ### Tools We'll Need
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (with HyperV or WSL2 enabled, if on Windows 10+. See [Docker's Windows Installation Guide](https://docs.docker.com/desktop/windows/install/)).
 - Node.js v14 - I recommend installing [Node Version Manager](https://github.com/nvm-sh/nvm) and then installing and using Node v14.
 - Signup for [a free Heroku account](https://signup.heroku.com/login)
 - [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 - [ModHeader Chrome Extension](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related?hl=en)
 - A GitHub account with the git client installed.
 - [Git Bash for Windows](https://git-scm.com/downloads), if running Windows.
-- [WebKitWebDriver Epiphany Cloud Docker Container Image](https://hub.docker.com/repository/docker/jamesmortensen/webkitwebdriver-epiphany-cloud) - Use `docker pull jamesmortensen/webkitwebdriver-epiphany-cloud:latest` to pull the container image.
+- (Optional) [Docker Desktop](https://www.docker.com/products/docker-desktop) (with HyperV or WSL2 enabled, if on Windows 10+. See [Docker's Windows Installation Guide](https://docs.docker.com/desktop/windows/install/)).
+- (Optional) [WebKitWebDriver Epiphany Cloud Docker Container Image](https://hub.docker.com/repository/docker/jamesmortensen/webkitwebdriver-epiphany-cloud) - Use `docker pull jamesmortensen/webkitwebdriver-epiphany-cloud:latest` to pull the container image.
+
 
 ### The Problem(s)
 
