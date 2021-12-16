@@ -76,6 +76,8 @@ In your case, don't share these tokens. They're the only thing sitting between y
 
 ### Step 3 - Deploy the Container Image
 
+#### Option 1 - Use the Docker CLI with Docker Desktop
+
 If you've already pulled the container image jamesmortensen/webkitwebdriver-epiphany-cloud, then you may skip this step. Otherwise, run the following command:
 
 ```
@@ -109,6 +111,64 @@ Again, this will take some time.  Once it's done, we'll deploy the container ima
 ```
 $ heroku container:release web -a YOUR_APP
 ```
+
+#### Option 2 - Use the Heroku Deploy Cloud Container GitHub Action
+
+There are two challenges that may impede pulling the container image from Docker Hub and then pushing it to the Heroku Container Registry. First, Docker Desktop's licensing terms, after January 31, 2021, make Docker Desktop a licensed, paid product for organizations exceeding $10,000,000 in revenue or which have greater than 250 total employees. 
+
+Another challenge for Windows users is the complexity of configuring either HyperV or WSL2 to enable virtualization, which is required to run Docker Desktop.
+
+One alternative is to [run the Docker Engine in a VM](https://www.codeluge.com/post/setting-up-docker-on-macos-m1-arm64-to-use-debian-10.4-docker-engine/), but setting that up or exploring other alternatives is a completely separate challenge altogether and can be quite complex.
+
+Another alternative, which we're going to use, takes advantage of the fact that the open source Docker Engine runs natively on Linux, without Docker Desktop. GitHub Actions runners come preinstalled with everything that we need to pull the container image from Docker Hub, login to the Heroku Container Registry, push the container image to that registry, and then deploy the container on our Heroku app.
+
+In your fork of the [Build Your Own Testing Platform in the Cloud Workshop](https://github.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop) GitHub repository is a GitHub Action with a workflow dispatch. This means we can trigger the action manually. Before you use the action, let's fork the project so that you have your own copy of this repository that you can work with. In the top right section of the page, click the "Fork" icon:
+
+![Fork the Build Your Own Testing Platform in the Cloud Workshop repository](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/fork-build-your-own-testing-platform-in-cloud.png)
+
+Another dialog will pop up asking you what profile/organization you'd like to fork to. I recommend choosing your personal profile. After a moment, the page should refresh, and you'll see the forked repository. Instead of seeing "jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop", you'll instead see "YOUR_NAME/build-your-own-testing-platform-in-the-cloud-workshop". Except below that, you'll see the original repo which your fork is derived from. Below is an example of an ARM64 fork of the SeleniumHQ/docker-selenium repository, as an example of what a forked repo looks like:
+
+![Example fork of the SeleniumHQ/docker-selenium repository](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/example-fork-of-docker-selenium-github-repo.png)
+
+Now that you've forked it, let's go to the "Actions" tab and click on the "Heroku Deploy Cloud Container" action:
+
+![Click Actions then Heroku Deploy Cloud Container Action](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/click-actions-then-heroku.png)
+
+You'll see there's 0 workflow runs, and that's because you haven't run any actions in this repo yet. We're about to change that. Click the "Run workflow" dropdown, located to the right of the blue notification, and this will pop up a form we'll need to fill out:
+
+![Heroku Deploy Action Workflow Dispatch Form](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deploy-action-workflow-dispatch-form.png)
+
+Enter the following values in the form: 
+- Email address you used to signup with Heroku
+- Heroku API Token, which you'll find by running `heroku auth:token` in the terminal
+
+```
+$ heroku auth:token
+ ›   Warning: token will expire 01/10/2022
+ ›   Use heroku authorizations:create to generate a long-term token
+YOUR_HEROKU_AUTH_TOKEN
+```
+
+- Heroku app name
+
+The container image we're using is jamesmortensen/webkitwebdriver-epiphany-cloud:latest, and it's already filled out for us in the form by default. At this point, check that the values you entered are correct, and click "Run workflow"
+
+At this point, you'll see a workflow run begin to execute. Click on the running workflow name, right next to the yellow circle:
+
+![Heroku Deploy Action Running](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deploy-action-running.png)
+
+Next, click the "deploy" icon to see the logs:
+
+![Click Heroku Deploy Icon in GitHub Actions](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/click-heroku-deploy-icon.png)
+
+
+You'll see the action runner pulling the docker container image from Docker Hub:
+
+![GitHub Actions runner pulling Docker container image](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deploy-pulling-step.png)
+
+At the end of the workflow run, you should see something like this in the logs:
+
+![GitHub Actions runner pulling Docker container image](https://raw.githubusercontent.com/jamesmortensen/build-your-own-testing-platform-in-the-cloud-workshop/master/workshop-screenshots/heroku-deployment-action-completed.png)
 
 
 ### Step 4 - Verify noVNC Access
