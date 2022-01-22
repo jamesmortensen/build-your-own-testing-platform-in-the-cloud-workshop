@@ -115,7 +115,7 @@ $ heroku container:release web -a YOUR_APP
 
 #### Option 2 - Use the Heroku Deploy Cloud Container GitHub Action
 
-There are two challenges that may impede pulling the container image from Docker Hub and then pushing it to the Heroku Container Registry. First, Docker Desktop's licensing terms, after January 31, 2021, make Docker Desktop a licensed, paid product for organizations exceeding $10,000,000 in revenue or which have greater than 250 total employees. 
+There are two challenges that may impede pulling the container image from Docker Hub and then pushing it to the Heroku Container Registry. First, Docker Desktop's licensing terms, after January 31, 2022, make Docker Desktop a licensed, paid product for organizations exceeding $10,000,000 in revenue or which have greater than 250 total employees. 
 
 Another challenge for Windows users is the complexity of configuring either HyperV or WSL2 to enable virtualization, which is required to run Docker Desktop.
 
